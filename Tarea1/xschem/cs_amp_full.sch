@@ -54,12 +54,12 @@ value="
 "}
 C {code.sym} 3180 -770 0 0 {name=Simulation only_toplevel=false value="
 .option wnflag=1
-.param IDS = 3.14u
-.param length = 3.1u
-.param width = 4.38u
+.param IDS = \{120u*3.141596\}
+.param length = 0.5u
+.param width = 0.4u
 
 vsup VDD 0 1.8
-vin vg 0 dc=0.40677 ac=1
+vin vg 0 dc=\{0.35\} ac=1
 
 cload vout 0 5p
 
@@ -72,7 +72,7 @@ save @n.xm1.nsg13_lv_nmos[gds]
 save @n.xm1.nsg13_lv_nmos[ib]
 
 *dc vin -0.01 0.01 0.001
-dc vin 0.932 0.934 0.001
+dc vin 0.35 0.35 0.001
 
 let gdsn = @n.xm1.nsg13_lv_nmos[gds]
 let gmn = @n.xm1.nsg13_lv_nmos[gm]
@@ -84,7 +84,7 @@ print vthn
 print ao
 
 ac dec 100 1 1T
-plot vdb(vout)
+*plot vdb(vout)
 meas ac GBW when vdb(vout)=0
 meas ac DCG find vdb(vout) at=1]]
 op

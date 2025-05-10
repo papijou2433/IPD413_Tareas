@@ -34,7 +34,6 @@ for dataset in data:
 
 
 fig, ax1 = plt.subplots(figsize=(8, 5))
-
 color1 = "tab:blue"
 ax1.set_xlabel("Vgs [V]")
 ax1.set_ylabel("gm/Id [S/A]", color=color1)

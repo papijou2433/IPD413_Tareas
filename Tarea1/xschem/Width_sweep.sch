@@ -9,10 +9,12 @@ N 3670 -540 3710 -540 {
 lab=vg}
 N 3670 -590 3670 -540 {
 lab=vg}
-N 3750 -660 3750 -570 {
-lab=vd}
 N 3750 -540 3750 -470 {
 lab=GND}
+N 3750 -590 3750 -570 {
+lab=#net1}
+N 3750 -670 3750 -650 {
+lab=vd}
 C {devices/gnd.sym} 3750 -470 0 0 {name=l3 lab=GND}
 C {devices/iopin.sym} 3670 -590 0 0 {name=p5 lab=vg}
 C {sg13g2_pr/sg13_lv_nmos.sym} 3730 -540 2 1 {name=M1
@@ -38,43 +40,43 @@ value="
 C {code.sym} 3860 -800 0 0 {name=Simulation only_toplevel=false value="
 .option wnflag=1
 *vsup VDD 0 1.8
-vin vg 0 dc=0.45 ac=1
+vin vg 0 0.35
 vds vd 0 1.8
-.param length = 0.13u
-.param width = 0.3u
+.param length = 0.5u
+.param width = 4.38u
+.param Ids = \{120u*3.1415\}
 cload vd 0 5p
-*.dc vin 0.0 1.8 0.01
 
 .control
-let strt_l = 0.13u
-let stop_l = 10.13u
-let step_l = 0.01u
-let curr_l = strt_l
+let strt_w = 0.3u
+let stop_w = 3u
+let step_w = 0.05u
+let curr_w = strt_w
 
-shell rm -f ao_sweep_l.raw
+shell rm -f gmid_sweep_w.raw
+shell rm -f vov_sweep_w.raw
 
-while curr_l le stop_l
-    alterparam length = $&curr_l
+while curr_w le stop_w
+    alterparam length = $&curr_w
     reset
     save all
     save @n.xm1.nsg13_lv_nmos[gm]
-    save @n.xm1.nsg13_lv_nmos[gds]
-    dc vds 0.02 1.8 0.01
-
-    let gm = @n.xm1.nsg13_lv_nmos[gm]
-    let gds = @n.xm1.nsg13_lv_nmos[gds]
-
-    let ao = gm / gds
-    *print ao
-
+    save @n.xm1.nsg13_lv_nmos[ids]
+    dc vin 0.35 0.35 0.01
+    let idn = @n.xm1.nsg13_lv_nmos[ids]
+    let gm  = @n.xm1.nsg13_lv_nmos[gm]
+    let gmid= gm/idn
+    let idw = idn/curr_w
     set appendwrite
-    wrdata ao_sweep_l.raw ao
-
-    let curr_l = curr_l + step_l
+    wrdata gmid_sweep_w.raw gmid idw
+    
+    
+    let curr_w = curr_w + step_w
 end
 .endc
 
 "
 
 }
-C {devices/iopin.sym} 3750 -620 0 0 {name=p1 lab=vd}
+C {devices/iopin.sym} 3750 -670 0 0 {name=p1 lab=vd}
+C {isource.sym} 3750 -620 0 0 {name=I0 value=\{Ids\}}

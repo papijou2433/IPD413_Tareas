@@ -59,12 +59,12 @@ C {code.sym} 590 -440 2 1 {name=Simulacion only_toplevel=false value=
 save all
 save @n.xm1.nsg13_lv_nmos[ids]
 save @n.xm1.nsg13_lv_nmos[gm]
-save @n.xm1.nsg13_hv_nmos[vth]
-save @n.xm1.nsg13_hv_nmos[cgg]
-save @n.xm1.nsg13_hv_nmos[cgsol]
-save @n.xm1.nsg13_hv_nmos[cgdol]
-save @n.xm1.nsg13_hv_nmos[vgs]
-save @n.xm1.nsg13_hv_nmos[vdss]
+save @n.xm1.nsg13_lv_nmos[vth]
+save @n.xm1.nsg13_lv_nmos[cgg]
+save @n.xm1.nsg13_lv_nmos[cgsol]
+save @n.xm1.nsg13_lv_nmos[cgdol]
+save @n.xm1.nsg13_lv_nmos[vgs]
+save @n.xm1.nsg13_lv_nmos[vdss]
 
 dc vgs 0.01 1.8 0.01 vds 0.4 1.35 0.05
 
@@ -81,6 +81,10 @@ let c_tot = cgg + cgsol + cgdol
 let ft = gmn/(2*pi*c_tot)
 
 let vov = 2*idn/gmn
+let vov2 = vgsn - vthn
+*Vov teorico difiere demasiado con vov real 
+*Vov=2.38 cuando vgs=1.8, siendo que Vthn = .27 (Vov irrealista, no aplicable)
+*print vov2
 let gmoverId = gmn/idn
 
 *plot idn title A_lineal
@@ -90,8 +94,10 @@ let gmoverId = gmn/idn
 
 wrdata nmos_char_idn.raw idn
 
+wrdata nmos_char_gmid-vov.raw gmoverID vov2
+
 wrdata nmos_char_gmid-ft.raw gmoverId ft
-print vthn
+*print vthn
 
 dc vds 0.0 1.35 0.01 vgs 0.4 1.5 0.1
 let idn = @n.xm1.nsg13_lv_nmos[ids]
