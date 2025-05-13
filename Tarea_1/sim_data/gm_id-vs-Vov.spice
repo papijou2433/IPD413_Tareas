@@ -1,0 +1,64 @@
+** sch_path: /workspaces/usm-vlsi-tools/shared_xserver/IPD413_202501/xschem/Tareas/Tarea_1/gm_id-vs-Vov.sch
+**.subckt gm_id-vs-Vov Vg Vdd
+*.ipin Vg
+*.ipin Vdd
+XM1 Vdd Vg GND GND sg13_lv_nmos w={W} l={L} ng=1 m=1
+**** begin user architecture code
+
+
+.param corner=0
+
+.if (corner==0)
+.lib cornerMOSlv.lib mos_tt
+.lib cornerRES.lib res_typ
+.lib cornerCAP.lib cap_typ
+.endif
+
+
+
+.param L = 0.26u
+.param W = 1.0u
+vdd  Vdd 0 0.75
+vgs vg 0 0.75
+.control
+save all
+save @n.xm1.nsg13_lv_nmos[ids]
+save @n.xm1.nsg13_lv_nmos[gm]
+save @n.xm1.nsg13_lv_nmos[vth]
+save @n.xm1.nsg13_lv_nmos[cgg]
+save @n.xm1.nsg13_lv_nmos[cgsol]
+save @n.xm1.nsg13_lv_nmos[cgdol]
+save @n.xm1.nsg13_lv_nmos[vgs]
+save @n.xm1.nsg13_lv_nmos[vdss]
+
+dc vgs 0.1 1.2 0.01
+
+let idn = @n.xm1.nsg13_lv_nmos[ids]
+let gmn = @n.xm1.nsg13_lv_nmos[gm]
+let vthn = @n.xm1.nsg13_lv_nmos[vth]
+let vgsn = @n.xm1.nsg13_lv_nmos[vgs]
+
+
+let vov = 2*idn/gmn
+let vov2 = vgsn - vthn
+*Vov teorico difiere demasiado con vov real
+*Vov=2.38 cuando vgs=1.8, siendo que Vthn = .27
+let gmoverId = gmn/idn
+
+print vthn[0]
+meas dc Vg_400 when gmoverID=4 CROSS=1
+meas dc Vg_920 when gmoverID=9.2 CROSS=1
+meas dc Vg_100 when gmoverID=10 CROSS=1
+meas dc Vg_130 when gmoverID=13 CROSS=1
+
+print vthn[0]-Vg_10
+*(más fiable un measure?)
+wrdata nmos_char_gmid-vov.raw gmoverID vov vov2
+op
+.endc
+
+
+**** end user architecture code
+**.ends
+.GLOBAL GND
+.end

@@ -1,0 +1,49 @@
+** sch_path: /workspaces/shared_xserver/IHP/MOS_testing/gmid.sch
+**.subckt gmid
+Vds Vds GND 3.3
+XM1 net1 Vgs GND GND sg13_hv_nmos w={w} l=0.45u ng=1 m=1
+XM2 GND Vgs net2 Vds sg13_hv_pmos w=1.0u l=0.45u ng=1 m=1
+Vgs Vgs GND 3.3
+Vmeas_n Vds net1 0
+.save i(vmeas_n)
+Vmeas_p Vds net2 0
+.save i(vmeas_p)
+**** begin user architecture code
+
+
+.lib cornerMOShv.lib mos_tt
+
+.param w= 1.0u
+*.options savecurrents
+
+.dc Vds 0 3.3 0.01
+.control
+let w_stop  = 5.0u
+let w_step  = 1.0u
+let w_curr  = 1.0u
+
+while w_curr le w_stop
+   alterparam w= $&w_curr
+   reset
+   save all
+   save @n.xm1.nsg13_hv_nmos[gm]
+   save @n.xm1.nsg13_hv_nmos[id]
+   save @n.xm1.nsg13_hv_nmos[w]
+   let  gmn = @n.xm1.nsg13_hv_nmos[gm]
+   run
+   remzerovec
+   write nmos_gmid_w_sweep.raw
+   let w_curr = w_curr + w_step
+   set appendwrite
+   print @n.xm1.nsg13_hv_nmos[gm]
+end
+*plot @n.xm1.nsg13_hv_nmos[gm] ylabel gm
+
+*plot log(@n.xm1.nsg13_hv_nmos[gm]/i(Vmeas_n)) vs i(Vmeas_n) xlabel Id ylabel log(gm/id) title gmid_nmos
+.endc
+
+
+**** end user architecture code
+**.ends
+.GLOBAL GND
+.end

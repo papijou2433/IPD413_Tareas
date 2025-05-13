@@ -1,0 +1,72 @@
+** sch_path: /workspaces/usm-vlsi-tools/shared_xserver/IPD413_202501/xschem/Tareas/Tarea_1/nmoslv_charac_IPD413-202501-HW1.sch
+**.subckt nmoslv_charac_IPD413-202501-HW1 g1 d1
+*.ipin g1
+*.iopin d1
+XM1 d1 g1 GND GND sg13_lv_nmos w=5u l=0.5u ng=1 m=1
+**** begin user architecture code
+
+
+.param corner=0
+
+.if (corner==0)
+.lib cornerMOSlv.lib mos_tt
+.lib cornerRES.lib res_typ
+.lib cornerCAP.lib cap_typ
+.endif
+
+
+
+.param vd = 0.75
+.param vg = 0.75
+
+vgs g1 0 {vd}
+vds d1 0 {vg}
+.control
+save all
+save @n.xm1.nsg13_lv_nmos[ids]
+save @n.xm1.nsg13_lv_nmos[gm]
+save @n.xm1.nsg13_lv_nmos[vth]
+save @n.xm1.nsg13_lv_nmos[cgg]
+save @n.xm1.nsg13_lv_nmos[cgsol]
+save @n.xm1.nsg13_lv_nmos[cgdol]
+save @n.xm1.nsg13_lv_nmos[vgs]
+save @n.xm1.nsg13_lv_nmos[vdss]
+
+dc vgs 0.01 1.8 0.01 vds 0.4 1.35 0.05
+
+let idn = @n.xm1.nsg13_lv_nmos[ids]
+let gmn = @n.xm1.nsg13_lv_nmos[gm]
+let vthn = @n.xm1.nsg13_lv_nmos[vth]
+let vgsn = @n.xm1.nsg13_lv_nmos[vgs]
+let vdsatn = @n.xm1.nsg13_lv_nmos[vdss]
+
+let cgg = @n.xm1.nsg13_lv_nmos[cgg]
+let cgsol = @n.xm1.nsg13_lv_nmos[cgsol]
+let cgdol = @n.xm1.nsg13_lv_nmos[cgdol]
+let c_tot = cgg + cgsol + cgdol
+let ft = gmn/(2*pi*c_tot)
+
+let vov = 2*idn/gmn
+let gmoverId = gmn/idn
+
+wrdata nmos_char_idn.raw idn
+
+wrdata nmos_char_gmid-ft.raw gmoverId ft
+
+print vthn[0]
+** Pregunta 1b
+dc vds 0.0 1.35 0.01 vgs 0.4 1.5 0.1
+let idn = @n.xm1.nsg13_lv_nmos[ids]
+wrdata nmos_char_vds.raw idn
+
+dc vgs 0.0 1.5 0.01
+let idn = @n.xm1.nsg13_lv_nmos[ids]
+wrdata nmos_char_1d.raw idn
+
+.endc
+
+
+**** end user architecture code
+**.ends
+.GLOBAL GND
+.end

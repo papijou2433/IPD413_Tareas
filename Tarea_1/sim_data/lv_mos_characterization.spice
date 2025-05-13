@@ -1,0 +1,78 @@
+** sch_path: /workspaces/shared_xserver/IHP/IPD413_Tareas/Tarea1/xschem/lv_mos_characterization.sch
+**.subckt lv_mos_characterization g1 d1
+*.ipin g1
+*.iopin d1
+XM1 net1 g1 GND GND sg13_lv_nmos w=5u l=0.5u ng=1 m=1
+Vmeas d1 net1 0
+.save i(vmeas)
+vgs g1 GND {vg}
+vds d1 GND {vd}
+**** begin user architecture code
+
+
+.param corner=0
+
+.if (corner==0)
+.lib cornerMOSlv.lib mos_tt
+.lib cornerRES.lib res_typ
+.lib cornerCAP.lib cap_typ
+.endif
+
+
+
+.param vd = 0.75
+.param vg = 0.75
+.control
+save all
+save @n.xm1.nsg13_lv_nmos[ids]
+save @n.xm1.nsg13_lv_nmos[gm]
+save @n.xm1.nsg13_lv_nmos[vth]
+save @n.xm1.nsg13_lv_nmos[cgg]
+save @n.xm1.nsg13_lv_nmos[cgsol]
+save @n.xm1.nsg13_lv_nmos[cgdol]
+save @n.xm1.nsg13_lv_nmos[vgs]
+save @n.xm1.nsg13_lv_nmos[vdss]
+
+dc vgs 0.01 1.8 0.01 vds 0.4 1.35 0.05
+
+let idn = @n.xm1.nsg13_lv_nmos[ids]
+let gmn = @n.xm1.nsg13_lv_nmos[gm]
+let vthn = @n.xm1.nsg13_lv_nmos[vth]
+let vgsn = @n.xm1.nsg13_lv_nmos[vgs]
+let vdsatn = @n.xm1.nsg13_lv_nmos[vdss]
+
+let cgg = @n.xm1.nsg13_lv_nmos[cgg]
+let cgsol = @n.xm1.nsg13_lv_nmos[cgsol]
+let cgdol = @n.xm1.nsg13_lv_nmos[cgdol]
+let c_tot = cgg + cgsol + cgdol
+let ft = gmn/(2*pi*c_tot)
+
+let vov = 2*idn/gmn
+let vov2 = vgsn - vthn
+*Vov teorico difiere demasiado con vov real
+*Vov=2.38 cuando vgs=1.8, siendo que Vthn = .27 (Vov irrealista, no aplicable)
+print vov2
+let gmoverId = gmn/idn
+
+*plot idn title A_lineal
+*plot ylog idn title A_log
+*plot gmn
+*plot xlog gmoverId
+
+wrdata nmos_char_idn.raw idn
+
+wrdata nmos_char_gmid-vov.raw gmoverID vov2
+
+wrdata nmos_char_gmid-ft.raw gmoverId ft
+print vthn
+
+dc vds 0.0 1.35 0.01 vgs 0.4 1.5 0.1
+let idn = @n.xm1.nsg13_lv_nmos[ids]
+wrdata nmos_char_vds.raw idn
+.endc
+
+
+**** end user architecture code
+**.ends
+.GLOBAL GND
+.end

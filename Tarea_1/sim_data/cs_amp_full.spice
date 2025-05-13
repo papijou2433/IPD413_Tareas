@@ -1,0 +1,61 @@
+** sch_path: /workspaces/usm-vlsi-tools/shared_xserver/IHP/IPD413_Tareas/Tarea1/xschem/P2/cs_amp_full.sch
+**.subckt cs_amp_full vg vout
+*.iopin vg
+*.iopin vout
+I1 VDD vout {IDS}
+XM1 vout vg GND GND sg13_lv_nmos w={width} l={length} ng=1 m=1
+**** begin user architecture code
+
+
+.param corner=0
+
+.if (corner==0)
+.lib cornerMOSlv.lib mos_tt
+.lib cornerRES.lib res_typ
+.lib cornerCAP.lib cap_typ
+.endif
+
+
+
+.option wnflag=1
+.param IDS = {120u*3.141596}
+.param length = 0.13u
+.param width = 0.4u
+
+vsup VDD 0 1.8
+vin vg 0 dc={0.45} ac=1
+
+cload vout 0 5p
+
+.control
+save all
+op
+save @n.xm1.nsg13_lv_nmos[gm]
+save @n.xm1.nsg13_lv_nmos[ids]
+save @n.xm1.nsg13_lv_nmos[gds]
+save @n.xm1.nsg13_lv_nmos[ib]
+
+*dc vin -0.01 0.01 0.001
+dc vin 0.45 0.45 0.001
+
+let gdsn = @n.xm1.nsg13_lv_nmos[gds]
+let gmn = @n.xm1.nsg13_lv_nmos[gm]
+let vthn = @n.xm1.nsg13_lv_nmos[vth]
+let idn = @n.xm1.nsg13_lv_nmos[ids]
+let ao = gmn / gdsn
+
+print vthn
+print ao
+
+ac dec 100 1 1T
+plot vdb(vout)
+meas ac GBW when vdb(vout)=0
+meas ac DCG find vdb(vout) at=1]]
+
+.endc
+
+**** end user architecture code
+**.ends
+.GLOBAL GND
+.GLOBAL VDD
+.end

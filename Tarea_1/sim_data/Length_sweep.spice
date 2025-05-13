@@ -1,0 +1,62 @@
+** sch_path: /workspaces/usm-vlsi-tools/shared_xserver/IPD413_202501/xschem/Tareas/Tarea_1/Length_sweep.sch
+**.subckt Length_sweep vg vd
+*.iopin vg
+*.iopin vd
+XM1 vd vg GND GND sg13_lv_nmos w={width} l={length} ng=1 m=1
+**** begin user architecture code
+
+
+.param corner=0
+
+.if (corner==0)
+.lib cornerMOSlv.lib mos_tt
+.lib cornerRES.lib res_typ
+.lib cornerCAP.lib cap_typ
+.endif
+
+
+
+.option wnflag=1
+*vsup VDD 0 1.8
+vin vg 0 dc=0.45 ac=1
+vds vd 0 1.8
+.param length = 0.13u
+.param width = 0.3u
+cload vd 0 5p
+*.dc vin 0.0 1.8 0.01
+
+.control
+let strt_l = 0.13u
+let stop_l = 1.13u
+let step_l = 0.01u
+let curr_l = strt_l
+
+shell rm -f ao_sweep_l.raw
+
+while curr_l le stop_l
+    alterparam length = $&curr_l
+    reset
+    save all
+    save @n.xm1.nsg13_lv_nmos[gm]
+    save @n.xm1.nsg13_lv_nmos[gds]
+    dc vds 0.02 1.8 0.01
+
+    let gm = @n.xm1.nsg13_lv_nmos[gm]
+    let gds = @n.xm1.nsg13_lv_nmos[gds]
+
+    let ao = gm / gds
+    *print ao
+
+    set appendwrite
+    wrdata ao_sweep_l.raw ao
+
+    let curr_l = curr_l + step_l
+end
+.endc
+
+
+
+**** end user architecture code
+**.ends
+.GLOBAL GND
+.end

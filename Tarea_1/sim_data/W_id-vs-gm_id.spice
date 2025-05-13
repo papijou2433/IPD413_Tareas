@@ -1,0 +1,51 @@
+** sch_path: /workspaces/usm-vlsi-tools/shared_xserver/IPD413_202501/xschem/Tareas/Tarea_1/W_id-vs-gm_id.sch
+**.subckt W_id-vs-gm_id vgs vd
+*.iopin vgs
+*.iopin vd
+XM1 vd vgs GND GND sg13_lv_nmos w={width} l={length} ng=1 m={mult}
+**** begin user architecture code
+
+
+.param corner=0
+
+.if (corner==0)
+.lib cornerMOSlv.lib mos_tt
+.lib cornerRES.lib res_typ
+.lib cornerCAP.lib cap_typ
+.endif
+
+
+
+.option wnflag=1
+
+.param length= 0.26u
+.param width = 1u
+.param mult = 1
+
+
+vin vgs 0 0.520
+vds vd 0 1.2
+
+.control
+
+shell rm -f gmid_sweep_w.raw
+
+save all
+save @n.xm1.nsg13_lv_nmos[gm]
+save @n.xm1.nsg13_lv_nmos[ids]
+
+dc vds 0.01 1.8 0.01
+let idn  = @n.xm1.nsg13_lv_nmos[ids]
+let gmn  = @n.xm1.nsg13_lv_nmos[gm]
+
+let gmid = gmn/idn
+let idw  = idn/1u
+wrdata gmid_sweep_w.raw gmid idw
+.endc
+
+
+
+**** end user architecture code
+**.ends
+.GLOBAL GND
+.end

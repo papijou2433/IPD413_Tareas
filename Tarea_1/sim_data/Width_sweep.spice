@@ -1,0 +1,62 @@
+** sch_path: /workspaces/shared_xserver/IHP/IPD413_Tareas/Tarea1/xschem/Width_sweep.sch
+**.subckt Width_sweep vg vd
+*.iopin vg
+*.iopin vd
+XM1 net1 vg GND GND sg13_lv_nmos w={width} l={length} ng=1 m=1
+I0 vd net1 {Ids}
+**** begin user architecture code
+
+
+.param corner=0
+
+.if (corner==0)
+.lib cornerMOSlv.lib mos_tt
+.lib cornerRES.lib res_typ
+.lib cornerCAP.lib cap_typ
+.endif
+
+
+
+.option wnflag=1
+*vsup VDD 0 1.8
+vin vg 0 0.35
+vds vd 0 1.8
+.param length = 0.5u
+.param width = 4.38u
+.param Ids = {120u*3.1415}
+cload vd 0 5p
+
+.control
+let strt_w = 0.3u
+let stop_w = 3u
+let step_w = 0.05u
+let curr_w = strt_w
+
+shell rm -f gmid_sweep_w.raw
+shell rm -f vov_sweep_w.raw
+
+while curr_w le stop_w
+    alterparam length = $&curr_w
+    reset
+    save all
+    save @n.xm1.nsg13_lv_nmos[gm]
+    save @n.xm1.nsg13_lv_nmos[ids]
+    dc vin 0.35 0.35 0.01
+    let idn = @n.xm1.nsg13_lv_nmos[ids]
+    let gm  = @n.xm1.nsg13_lv_nmos[gm]
+    let gmid= gm/idn
+    let idw = idn/curr_w
+    set appendwrite
+    wrdata gmid_sweep_w.raw gmid idw
+
+
+    let curr_w = curr_w + step_w
+end
+.endc
+
+
+
+**** end user architecture code
+**.ends
+.GLOBAL GND
+.end
